@@ -1,0 +1,45 @@
+# Python
+__pycache__/
+*.pyc
+.venv/
+venv/
+*.egg-info/
+dist/
+build/
+
+# Tooling caches
+.pytest_cache/
+.ruff_cache/
+.coverage
+htmlcov/
+
+# Tooling caches (future)
+.mypy_cache/
+.tox/
+.nox/
+
+# Editors
+.idea/
+.vscode/
+
+# Personal Claude Code settings. Only `settings.local.json` — a shared
+# `.claude/settings.json` is fine to commit. Pinned here rather than relying on a
+# per-developer global ignore, which a new clone would not have.
+.claude/settings.local.json
+
+# Secrets. This library reads no environment variables by design, but a stray
+# .env should never be committable.
+.env
+*.env
+
+# OS / file-manager artifacts
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Internal working documents — not published with this repository.
+# The engineering plan carries design rationale and commercial context; CLAUDE.md
+# is local assistant configuration. Keep them out of a public repo, and remember
+# git history is permanent: never commit either, not even once.
+oncokernel-contracts-engineering-plan.md
+CLAUDE.md

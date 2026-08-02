@@ -1,0 +1,64 @@
+[project]
+name = "oncokernel-contracts"
+version = "0.1.0"
+description = "Shared data contracts for OncoKernel — the typed spine every service speaks"
+readme = "README.md"
+requires-python = ">=3.12"
+license = "MIT"
+license-files = ["LICENSE"]
+dependencies = [
+    "pydantic>=2.9",
+]
+
+[project.scripts]
+oncokernel-schemas = "oncokernel_contracts.schemas:main"
+
+# Declared twice on purpose:
+#   [dependency-groups]            PEP 735 — used by `uv sync` (house standard)
+#   [project.optional-dependencies] classic extras — used by `pip install -e ".[dev]"`
+# pip only gained `--group` support recently, so the extra keeps the repo
+# installable with a stock Python and no uv.
+[dependency-groups]
+dev = [
+    "pytest>=8.3",
+    "pytest-cov>=6.0",
+    "ruff>=0.8",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=8.3",
+    "pytest-cov>=6.0",
+    "ruff>=0.8",
+]
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/oncokernel_contracts"]
+
+[tool.ruff]
+src = ["src", "tests"]
+line-length = 100
+target-version = "py312"
+
+[tool.ruff.lint]
+select = [
+    "E",    # pycodestyle
+    "F",    # pyflakes
+    "I",    # isort
+    "UP",   # pyupgrade
+    "B",    # bugbear
+    "SIM",  # simplify
+    "TID",  # tidy-imports
+    "RUF",
+]
+
+[tool.ruff.lint.flake8-tidy-imports]
+ban-relative-imports = "all"
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+addopts = "--strict-markers --strict-config"

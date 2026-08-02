@@ -1,0 +1,98 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        python-version: ["3.12", "3.13"]
+    steps:
+      - uses: actions/checkout@v7
+
+      # Pinned to the exact tag: astral-sh publishes v9.0.0 but no floating `v9` major
+      # tag, so `@v9` fails to resolve and the job dies before it installs anything.
+      - uses: astral-sh/setup-uv@v9.0.0
+        with:
+          enable-cache: true
+
+      # `--locked` fails the job if uv.lock is stale rather than silently resolving
+      # something different from what was tested locally.
+      - name: Install dependencies
+        run: uv sync --locked --python ${{ matrix.python-version }}
+
+      - name: Lint
+        run: uv run --python ${{ matrix.python-version }} ruff check src tests
+
+      - name: Format check
+        run: uv run --python ${{ matrix.python-version }} ruff format --check src tests
+
+      - name: Test
+        run: uv run --python ${{ matrix.python-version }} pytest
+
+      # The committed JSON Schemas are what non-Python consumers read. If a model
+      # changes and the schema is not regenerated, the two disagree silently —
+      # this is the only thing that catches it.
+      - name: JSON Schema drift
+        run: uv run --python ${{ matrix.python-version }} python -m oncokernel_contracts.schemas --check
+
+  # This library is not deployed as a container — the image exists so the test
+  # suite runs reproducibly on a machine with no suitable Python. Build it on
+  # every PR so it does not rot unnoticed.
+  docker:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+
+      - uses: docker/setup-buildx-action@v3
+
+      - name: Build image
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          load: true
+          tags: oncokernel-contracts:ci
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+
+      - name: Test suite runs in the image
+        run: docker run --rm oncokernel-contracts:ci
+
+  # A consumer installs this library from a git ref with plain pip, inside its own
+  # image build. Prove that path works without uv and without the dev extras.
+  consumer-install:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install as a consumer would
+        run: pip install .
+
+      - name: Import and project a fixture
+        run: |
+          python - <<'PY'
+          from uuid import uuid4
+          from oncokernel_contracts import project
+          from oncokernel_contracts.fixtures import ALL_FIXTURES
+
+          for name, build in ALL_FIXTURES.items():
+              crossed = project(build(), sample_uuid=uuid4())
+              dumped = crossed.model_dump(mode="json")
+              assert "germline_variants" not in dumped
+              assert "vcf_path" not in dumped
+              assert "sample_id" not in dumped
+              print(f"{name}: ok")
+          PY

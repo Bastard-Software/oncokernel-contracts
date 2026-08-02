@@ -1,0 +1,385 @@
+{
+  "$defs": {
+    "CaveatCode": {
+      "description": "Machine-readable limitations. Consumers are expected to render these.",
+      "enum": [
+        "TUMOR_ONLY_GERMLINE_UNSEPARATED",
+        "PURITY_FIT_DEGRADED",
+        "RESOURCES_UNVALIDATED",
+        "NOT_GENOME_WIDE"
+      ],
+      "title": "CaveatCode",
+      "type": "string"
+    },
+    "Limitation": {
+      "additionalProperties": false,
+      "properties": {
+        "code": {
+          "$ref": "#/$defs/CaveatCode"
+        },
+        "rendering": {
+          "title": "Rendering",
+          "type": "string"
+        }
+      },
+      "required": [
+        "code",
+        "rendering"
+      ],
+      "title": "Limitation",
+      "type": "object"
+    },
+    "MsiStatus": {
+      "enum": [
+        "MSI",
+        "MSS"
+      ],
+      "title": "MsiStatus",
+      "type": "string"
+    },
+    "Panel": {
+      "description": "Registered panels.\n\nMembers are **assay-versioned** on purpose: revisions change footprint, and a\nTMB validated against last year's territory is not validated against this\nyear's.\n\nSeeded with two publicly documented assays so the mechanism has real test\ncoverage on both sides of the floor. **The footprint figures below are taken\nfrom public documentation and require clinical sign-off before any\nproduction use** \u2014 see `docs/panels.md`.",
+      "enum": [
+        "foundation_one_cdx_v1",
+        "msk_impact_v468"
+      ],
+      "title": "Panel",
+      "type": "string"
+    },
+    "Provenance": {
+      "additionalProperties": false,
+      "properties": {
+        "container_digests": {
+          "additionalProperties": {
+            "type": "string"
+          },
+          "title": "Container Digests",
+          "type": "object"
+        },
+        "engine": {
+          "description": "e.g. 'sage-minimal' or 'oncoanalyser@2.3.0'",
+          "title": "Engine",
+          "type": "string"
+        },
+        "pipeline_git_sha": {
+          "title": "Pipeline Git Sha",
+          "type": "string"
+        },
+        "resource_bundle": {
+          "description": "e.g. 'public-unvalidated@<manifest-hash>' or 'hmf@<version>'",
+          "title": "Resource Bundle",
+          "type": "string"
+        },
+        "tool_versions": {
+          "additionalProperties": {
+            "type": "string"
+          },
+          "title": "Tool Versions",
+          "type": "object"
+        },
+        "validation_status": {
+          "$ref": "#/$defs/ValidationStatus"
+        }
+      },
+      "required": [
+        "engine",
+        "resource_bundle",
+        "validation_status",
+        "pipeline_git_sha"
+      ],
+      "title": "Provenance",
+      "type": "object"
+    },
+    "RegionsAnalysed": {
+      "additionalProperties": false,
+      "description": "The genomic territory an analysis actually covered.\n\nTogether with `SampleMode` this decides which metrics a profile is entitled\nto carry. Purity, ploidy and MSI require genome-wide coverage. TMB is\nadditionally allowed from a large enough registered panel \u2014 but only on the\ntumor/normal track (see `supports_tmb`).",
+      "properties": {
+        "kind": {
+          "$ref": "#/$defs/Territory"
+        },
+        "panel": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Panel"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "regions": {
+          "default": [],
+          "items": {
+            "type": "string"
+          },
+          "title": "Regions",
+          "type": "array"
+        }
+      },
+      "required": [
+        "kind"
+      ],
+      "title": "RegionsAnalysed",
+      "type": "object"
+    },
+    "SampleMode": {
+      "description": "The clinical track a profile was produced on.\n\n`TUMOR_NORMAL` is the baseline. `TUMOR_ONLY` is a supported but structurally\ncompromised fallback \u2014 it triggers stricter rules elsewhere in this library.",
+      "enum": [
+        "tumor_normal",
+        "tumor_only"
+      ],
+      "title": "SampleMode",
+      "type": "string"
+    },
+    "Territory": {
+      "description": "What genomic territory the analysis actually covered.",
+      "enum": [
+        "genome_wide",
+        "panel",
+        "subset"
+      ],
+      "title": "Territory",
+      "type": "string"
+    },
+    "TmbMethod": {
+      "description": "How a TMB value was derived. Never let these two be compared to one another.",
+      "enum": [
+        "genome_wide",
+        "panel_derived"
+      ],
+      "title": "TmbMethod",
+      "type": "string"
+    },
+    "ValidationStatus": {
+      "description": "Whether the run used licensed reference resources or public substitutes.",
+      "enum": [
+        "unvalidated_resources",
+        "validated"
+      ],
+      "title": "ValidationStatus",
+      "type": "string"
+    },
+    "Variant": {
+      "additionalProperties": false,
+      "properties": {
+        "alt": {
+          "minLength": 1,
+          "title": "Alt",
+          "type": "string"
+        },
+        "chrom": {
+          "title": "Chrom",
+          "type": "string"
+        },
+        "filter": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "VCF FILTER, e.g. PASS",
+          "title": "Filter"
+        },
+        "gene": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Gene"
+        },
+        "pos": {
+          "description": "1-based, VCF convention",
+          "exclusiveMinimum": 0,
+          "title": "Pos",
+          "type": "integer"
+        },
+        "ref": {
+          "minLength": 1,
+          "title": "Ref",
+          "type": "string"
+        },
+        "tier": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "caller tier, e.g. SAGE HOTSPOT",
+          "title": "Tier"
+        },
+        "vaf": {
+          "anyOf": [
+            {
+              "maximum": 1.0,
+              "minimum": 0.0,
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Vaf"
+        }
+      },
+      "required": [
+        "chrom",
+        "pos",
+        "ref",
+        "alt"
+      ],
+      "title": "Variant",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "description": "The complete on-prem record. Never leaves the hospital network.",
+  "properties": {
+    "germline_variants": {
+      "default": [],
+      "items": {
+        "$ref": "#/$defs/Variant"
+      },
+      "title": "Germline Variants",
+      "type": "array"
+    },
+    "hla_type": {
+      "default": [],
+      "items": {
+        "type": "string"
+      },
+      "title": "Hla Type",
+      "type": "array"
+    },
+    "limitations": {
+      "default": [],
+      "items": {
+        "$ref": "#/$defs/Limitation"
+      },
+      "title": "Limitations",
+      "type": "array"
+    },
+    "msi_status": {
+      "anyOf": [
+        {
+          "$ref": "#/$defs/MsiStatus"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null
+    },
+    "ploidy": {
+      "anyOf": [
+        {
+          "exclusiveMinimum": 0.0,
+          "type": "number"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Ploidy"
+    },
+    "provenance": {
+      "$ref": "#/$defs/Provenance"
+    },
+    "regions_analysed": {
+      "$ref": "#/$defs/RegionsAnalysed"
+    },
+    "sample_id": {
+      "title": "Sample Id",
+      "type": "string"
+    },
+    "sample_mode": {
+      "$ref": "#/$defs/SampleMode"
+    },
+    "schema_version": {
+      "default": "1.0.0",
+      "title": "Schema Version",
+      "type": "string"
+    },
+    "somatic_variants": {
+      "default": [],
+      "items": {
+        "$ref": "#/$defs/Variant"
+      },
+      "title": "Somatic Variants",
+      "type": "array"
+    },
+    "tmb": {
+      "anyOf": [
+        {
+          "minimum": 0.0,
+          "type": "number"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Tmb"
+    },
+    "tmb_method": {
+      "anyOf": [
+        {
+          "$ref": "#/$defs/TmbMethod"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null
+    },
+    "tumor_purity": {
+      "anyOf": [
+        {
+          "exclusiveMinimum": 0.0,
+          "maximum": 1.0,
+          "type": "number"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Tumor Purity"
+    },
+    "vcf_path": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Vcf Path"
+    }
+  },
+  "required": [
+    "sample_mode",
+    "regions_analysed",
+    "provenance",
+    "sample_id"
+  ],
+  "title": "GenomicProfile",
+  "type": "object"
+}
