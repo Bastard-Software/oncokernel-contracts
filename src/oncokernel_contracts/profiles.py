@@ -118,6 +118,23 @@ class _ProfileBase(BaseModel):
         return self
 
     @model_validator(mode="after")
+    def _excluded_territory_must_carry_its_caveat(self) -> "_ProfileBase":
+        """Metrics survive an exclusion; silence about it does not.
+
+        The territory model permits a genome-wide claim with holes in it precisely
+        so purity, ploidy, TMB and MSI keep flowing. That trade is only honest if
+        the holes are declared where a consumer will render them.
+        """
+        if self.regions_analysed.excluded and CaveatCode.TERRITORY_PARTIALLY_EXCLUDED not in codes(
+            self.limitations
+        ):
+            raise ValueError(
+                "regions_analysed.excluded is set, so the profile must carry the "
+                "TERRITORY_PARTIALLY_EXCLUDED caveat"
+            )
+        return self
+
+    @model_validator(mode="after")
     def _unvalidated_resources_must_carry_its_caveat(self) -> "_ProfileBase":
         if (
             self.provenance.validation_status is ValidationStatus.UNVALIDATED_RESOURCES

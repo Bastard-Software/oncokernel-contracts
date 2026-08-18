@@ -12,6 +12,7 @@ A `Limitation` carries a `code` and a `rendering`. Omitting `rendering` fills it
 | `PURITY_FIT_DEGRADED` | "Tumor purity and ploidy were fitted without a matched normal and are less well constrained than on the tumor/normal track." | Set by the producer; not enforced |
 | `RESOURCES_UNVALIDATED` | "This run used public substitute reference resources, not the licensed clinical bundle. Output is a wiring artefact and must not be used clinically." | **Required** when `provenance.validation_status == unvalidated_resources` |
 | `NOT_GENOME_WIDE` | "Analysis covered a restricted territory. Genome-wide metrics are not reported." | Set by the producer; not enforced |
+| `TERRITORY_PARTIALLY_EXCLUDED` | "Part of the genome was excluded from analysis and the reported metrics are rates over the remainder. See regions_analysed.excluded and regions_analysed.analysed_bases." | **Required** when `regions_analysed.excluded` is non-empty |
 
 ## Consumer requirements
 

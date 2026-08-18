@@ -37,6 +37,11 @@ DEFAULT_RENDERINGS: Mapping[CaveatCode, str] = MappingProxyType(
         CaveatCode.NOT_GENOME_WIDE: (
             "Analysis covered a restricted territory. Genome-wide metrics are not reported."
         ),
+        CaveatCode.TERRITORY_PARTIALLY_EXCLUDED: (
+            "Part of the genome was excluded from analysis and the reported metrics are "
+            "rates over the remainder. See regions_analysed.excluded and "
+            "regions_analysed.analysed_bases."
+        ),
     }
 )
 
