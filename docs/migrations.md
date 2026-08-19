@@ -26,6 +26,21 @@ Baseline. No migration required.
 
 Not included: copilot and dashboard contracts.
 
+## Unversioned — territory exclusions
+
+Additive, so no version bump: `schema_version` stays `1.0.0` and `__version__` stays `0.1.0`. Taken deliberately because the ingestion engine is the only consumer; the addition would otherwise require a consumer bump first, per the upgrade order above.
+
+| Added | Detail |
+|---|---|
+| `RegionsAnalysed.excluded` | Half-open spans removed from an otherwise genome-wide territory |
+| `RegionsAnalysed.analysed_bases` | What survived; required whenever `excluded` is set |
+| `MAX_EXCLUDED_FRACTION` | 0.20 ceiling, above which the territory is not genome-wide |
+| `CaveatCode.TERRITORY_PARTIALLY_EXCLUDED` | Required when `excluded` is non-empty |
+
+Genome-wide metrics remain permitted on a partly excluded territory. Consumers reading `tmb` must treat it as a rate over `analysed_bases`, not over the genome.
+
+The next consumer to appear makes this a real bump, and this entry becomes its migration note.
+
 ## Planned
 
 | Trigger | Change | Breaking |

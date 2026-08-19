@@ -86,6 +86,22 @@ Accepted examples: `OK-TN-0001`, `a3f9c2`, `sample-22-b`, `OK_0001`.
 
 An unregistered panel identifier fails enum parsing.
 
+### Excluded regions
+
+Permitted only on `genome_wide`, which may report genome-wide metrics as rates over what survived.
+
+| Rule | Message contains |
+|---|---|
+| `excluded` or `analysed_bases` set on `panel` or `subset` | `neither excluded nor analysed_bases` |
+| `excluded` set without a positive `analysed_bases` | `require a positive analysed_bases` |
+| `analysed_bases` set without `excluded` | `without any excluded regions` |
+| Span not of the form `chr6:0-60000000` | `is not of the form` |
+| Span ends at or before it starts | `ends at or before it starts` |
+| Two spans overlap on one contig | `overlap on <contig>` |
+| Excluded fraction over `MAX_EXCLUDED_FRACTION` (0.20) | `over the 20% ceiling` |
+
+The fraction is `excluded / (excluded + analysed_bases)`. Abutting spans are legal; the coordinates are half-open.
+
 ---
 
 ## Model configuration

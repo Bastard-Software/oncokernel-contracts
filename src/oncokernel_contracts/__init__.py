@@ -35,7 +35,7 @@ from oncokernel_contracts.projection import (
     project,
 )
 from oncokernel_contracts.provenance import Provenance
-from oncokernel_contracts.regions import GENOME_WIDE, RegionsAnalysed
+from oncokernel_contracts.regions import GENOME_WIDE, MAX_EXCLUDED_FRACTION, RegionsAnalysed
 from oncokernel_contracts.variants import Variant
 from oncokernel_contracts.version import SCHEMA_VERSION, __version__
 
@@ -45,6 +45,7 @@ __all__ = [
     "FIELD_DISPOSITION",
     "GENOME_WIDE",
     "MAPPED_FIELDS",
+    "MAX_EXCLUDED_FRACTION",
     "SCHEMA_VERSION",
     "TMB_FOOTPRINT_FLOOR_MB",
     "TRANSFORMED_FIELDS",

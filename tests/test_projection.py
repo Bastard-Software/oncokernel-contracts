@@ -8,8 +8,10 @@ from oncokernel_contracts import (
     FIELD_DISPOSITION,
     MAPPED_FIELDS,
     TRANSFORMED_FIELDS,
+    CaveatCode,
     GenomicProfile,
     PseudonymizedProfile,
+    limitation,
     project,
 )
 from oncokernel_contracts.fixtures import SAMPLE_UUID, tumor_normal_genome_wide
@@ -121,3 +123,27 @@ def test_frozen_payload_cannot_be_mutated():
     crossed = project(tumor_normal_genome_wide(), sample_uuid=SAMPLE_UUID)
     with pytest.raises(ValidationError):
         crossed.tumor_purity = 0.99
+
+
+def test_an_excluded_territory_crosses_the_boundary_intact():
+    """A metric is a rate, and downstream cannot check the rate without the
+    denominator. `regions_analysed` is MAPPED, so the exclusions travel with it —
+    this pins that, because dropping them would leave a TMB nobody can interpret.
+    """
+    source = tumor_normal_genome_wide()
+    partial = source.model_copy(
+        update={
+            "regions_analysed": source.regions_analysed.model_copy(
+                update={
+                    "excluded": ("chr6:0-60000000",),
+                    "analysed_bases": 2_971_000_000,
+                }
+            ),
+            "limitations": (limitation(CaveatCode.TERRITORY_PARTIALLY_EXCLUDED),),
+        }
+    )
+
+    crossed = project(GenomicProfile.model_validate(partial.model_dump()), sample_uuid=SAMPLE_UUID)
+
+    assert crossed.regions_analysed.excluded == ("chr6:0-60000000",)
+    assert crossed.regions_analysed.analysed_bases == 2_971_000_000

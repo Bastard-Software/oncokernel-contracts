@@ -17,7 +17,7 @@ On-premise record. Produced by the ingestion adapter. Not for transmission outsi
 | `schema_version` | `str` | `"1.0.0"` | |
 | `sample_id` | `str` | *required* | Passed through `assert_pseudonymous()` |
 | `sample_mode` | `SampleMode` | *required* | |
-| `regions_analysed` | `RegionsAnalysed` | *required* | |
+| `regions_analysed` | `RegionsAnalysed` | *required* | Exclusions require the `TERRITORY_PARTIALLY_EXCLUDED` caveat |
 | `vcf_path` | `str \| None` | `None` | Not present on `PseudonymizedProfile` |
 | `somatic_variants` | `tuple[Variant, ...]` | `()` | |
 | `germline_variants` | `tuple[Variant, ...]` | `()` | Requires `sample_mode == tumor_normal`. Not present on `PseudonymizedProfile` |
@@ -52,12 +52,16 @@ Construct via [`project()`](#projection), not directly.
 | `kind` | `Territory` | *required* |
 | `panel` | `Panel \| None` | `None` |
 | `regions` | `tuple[str, ...]` | `()` |
+| `excluded` | `tuple[str, ...]` | `()` |
+| `analysed_bases` | `int \| None` | `None` |
 
-| `kind` | `panel` | `regions` |
-|---|---|---|
-| `genome_wide` | must be `None` | must be empty |
-| `panel` | required | must be empty |
-| `subset` | must be `None` | at least one entry |
+| `kind` | `panel` | `regions` | `excluded` | `analysed_bases` |
+|---|---|---|---|---|
+| `genome_wide` | must be `None` | must be empty | permitted | required with `excluded` |
+| `panel` | required | must be empty | must be empty | must be `None` |
+| `subset` | must be `None` | at least one entry | must be empty | must be `None` |
+
+`excluded` entries are half-open spans, `chr6:0-60000000`. Coordinates are mandatory: this library holds no contig lengths, so a bare contig name would have unknown size and the excluded fraction could not be computed.
 
 **Properties and methods**
 

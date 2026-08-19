@@ -6,7 +6,8 @@
         "TUMOR_ONLY_GERMLINE_UNSEPARATED",
         "PURITY_FIT_DEGRADED",
         "RESOURCES_UNVALIDATED",
-        "NOT_GENOME_WIDE"
+        "NOT_GENOME_WIDE",
+        "TERRITORY_PARTIALLY_EXCLUDED"
       ],
       "title": "CaveatCode",
       "type": "string"
@@ -94,6 +95,26 @@
       "additionalProperties": false,
       "description": "The genomic territory an analysis actually covered.\n\nTogether with `SampleMode` this decides which metrics a profile is entitled\nto carry. Purity, ploidy and MSI require genome-wide coverage. TMB is\nadditionally allowed from a large enough registered panel \u2014 but only on the\ntumor/normal track (see `supports_tmb`).",
       "properties": {
+        "analysed_bases": {
+          "anyOf": [
+            {
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Analysed Bases"
+        },
+        "excluded": {
+          "default": [],
+          "items": {
+            "type": "string"
+          },
+          "title": "Excluded",
+          "type": "array"
+        },
         "kind": {
           "$ref": "#/$defs/Territory"
         },
