@@ -42,6 +42,11 @@ DEFAULT_RENDERINGS: Mapping[CaveatCode, str] = MappingProxyType(
             "rates over the remainder. See regions_analysed.excluded and "
             "regions_analysed.analysed_bases."
         ),
+        CaveatCode.ORACLES_BYPASSED: (
+            "The quantitative sanity checks were disabled for this run. Nothing verified "
+            "that germline separation, sample identity or variant density are plausible, "
+            "so this profile is a wiring artefact and must not be used clinically."
+        ),
     }
 )
 
