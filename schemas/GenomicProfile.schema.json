@@ -8,7 +8,8 @@
         "RESOURCES_UNVALIDATED",
         "NOT_GENOME_WIDE",
         "TERRITORY_PARTIALLY_EXCLUDED",
-        "ORACLES_BYPASSED"
+        "ORACLES_BYPASSED",
+        "ORACLES_FAILED"
       ],
       "title": "CaveatCode",
       "type": "string"

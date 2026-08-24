@@ -47,6 +47,11 @@ DEFAULT_RENDERINGS: Mapping[CaveatCode, str] = MappingProxyType(
             "that germline separation, sample identity or variant density are plausible, "
             "so this profile is a wiring artefact and must not be used clinically."
         ),
+        CaveatCode.ORACLES_FAILED: (
+            "One or more quantitative sanity checks failed for this run. The call set is "
+            "not what a somatic call set should look like, and the reason is named in the "
+            "oracle report published beside this profile. Not for clinical use."
+        ),
     }
 )
 
