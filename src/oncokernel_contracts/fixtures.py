@@ -67,6 +67,22 @@ _VARIANTS = (
         tier="PANEL",
         filter="PASS",
     ),
+    # Annotated, so the schema examples carry the shape a consumer reasons over.
+    # Real values rather than invented ones: the canonical missense of the field.
+    Variant(
+        chrom="chr7",
+        pos=140753336,
+        ref="A",
+        alt="T",
+        gene="BRAF",
+        vaf=0.63,
+        tier="HOTSPOT",
+        filter="PASS",
+        transcript="ENST00000646891",
+        consequence="missense_variant",
+        hgvs_coding="c.1799T>A",
+        hgvs_protein="p.Val600Glu",
+    ),
 )
 
 
