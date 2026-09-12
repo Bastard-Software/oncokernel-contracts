@@ -195,6 +195,19 @@
           "title": "Chrom",
           "type": "string"
         },
+        "consequence": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "e.g. missense_variant, splice_acceptor_variant&intron_variant",
+          "title": "Consequence"
+        },
         "filter": {
           "anyOf": [
             {
@@ -220,6 +233,32 @@
           "default": null,
           "title": "Gene"
         },
+        "hgvs_coding": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "HGVS c., e.g. c.1799T>A",
+          "title": "Hgvs Coding"
+        },
+        "hgvs_protein": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "HGVS p., e.g. p.Val600Glu",
+          "title": "Hgvs Protein"
+        },
         "pos": {
           "description": "1-based, VCF convention",
           "exclusiveMinimum": 0,
@@ -243,6 +282,19 @@
           "default": null,
           "description": "caller tier, e.g. SAGE HOTSPOT",
           "title": "Tier"
+        },
+        "transcript": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Ensembl transcript id, e.g. ENST00000646891",
+          "title": "Transcript"
         },
         "vaf": {
           "anyOf": [
