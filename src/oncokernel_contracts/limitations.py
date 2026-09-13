@@ -52,6 +52,11 @@ DEFAULT_RENDERINGS: Mapping[CaveatCode, str] = MappingProxyType(
             "not what a somatic call set should look like, and the reason is named in the "
             "oracle report published beside this profile. Not for clinical use."
         ),
+        CaveatCode.GENE_ANNOTATION_UNAVAILABLE: (
+            "No gene model reached this run, so no variant carries a gene, transcript or "
+            "protein change. An absent gene records that nothing looked, not that the "
+            "variant lies outside a gene."
+        ),
     }
 )
 
