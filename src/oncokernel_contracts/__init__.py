@@ -11,6 +11,7 @@ web service alike.
 
 from oncokernel_contracts.enums import (
     CaveatCode,
+    GeneModelSource,
     MsiStatus,
     SampleMode,
     Territory,
@@ -34,7 +35,7 @@ from oncokernel_contracts.projection import (
     Disposition,
     project,
 )
-from oncokernel_contracts.provenance import Provenance
+from oncokernel_contracts.provenance import GeneModel, Provenance
 from oncokernel_contracts.regions import GENOME_WIDE, MAX_EXCLUDED_FRACTION, RegionsAnalysed
 from oncokernel_contracts.variants import Variant
 from oncokernel_contracts.version import SCHEMA_VERSION, __version__
@@ -51,6 +52,8 @@ __all__ = [
     "TRANSFORMED_FIELDS",
     "CaveatCode",
     "Disposition",
+    "GeneModel",
+    "GeneModelSource",
     "GenomicProfile",
     "IdentifierHygieneError",
     "Limitation",

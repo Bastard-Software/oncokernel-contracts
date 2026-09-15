@@ -13,6 +13,7 @@ from uuid import UUID
 
 from oncokernel_contracts.enums import (
     CaveatCode,
+    GeneModelSource,
     MsiStatus,
     SampleMode,
     Territory,
@@ -22,11 +23,20 @@ from oncokernel_contracts.enums import (
 from oncokernel_contracts.limitations import limitation
 from oncokernel_contracts.panels import Panel
 from oncokernel_contracts.profiles import GenomicProfile
-from oncokernel_contracts.provenance import Provenance
+from oncokernel_contracts.provenance import GeneModel, Provenance
 from oncokernel_contracts.regions import GENOME_WIDE, RegionsAnalysed
 from oncokernel_contracts.variants import Variant
 
 SAMPLE_UUID = UUID("11111111-2222-3333-4444-555555555555")
+
+#: `_VARIANTS` carries a transcript, so every fixture provenance needs the release
+#: that minted it. Ensembl 110 is what the ingestion engine's `setup.sh` pins.
+_GENE_MODEL = GeneModel(
+    source=GeneModelSource.ENSEMBL,
+    release="110",
+    assembly="GRCh38",
+    annotator="pave@1.9",
+)
 
 _UNVALIDATED = Provenance(
     engine="sage-minimal",
@@ -35,6 +45,7 @@ _UNVALIDATED = Provenance(
     pipeline_git_sha="0" * 40,
     tool_versions={"sage": "3.4"},
     container_digests={"sage": "sha256:" + "0" * 64},
+    gene_model=_GENE_MODEL,
 )
 
 _VALIDATED = Provenance(
@@ -44,6 +55,7 @@ _VALIDATED = Provenance(
     pipeline_git_sha="1" * 40,
     tool_versions={"sage": "3.4", "purple": "4.0", "amber": "4.0", "cobalt": "1.16"},
     container_digests={"sage": "sha256:" + "1" * 64},
+    gene_model=_GENE_MODEL,
 )
 
 _VARIANTS = (

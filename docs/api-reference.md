@@ -85,6 +85,21 @@ Construct via [`project()`](#projection), not directly.
 | `pipeline_git_sha` | `str` | *required* | |
 | `tool_versions` | `dict[str, str]` | `{}` | `{"sage": "3.4"}` |
 | `container_digests` | `dict[str, str]` | `{}` | `{"sage": "sha256:…"}` |
+| `gene_model` | `GeneModel \| None` | `None` | Required as soon as any variant carries a `transcript` |
+
+### `GeneModel`
+
+The catalogue release behind `Variant.transcript`. A bare transcript id is not a
+stable coordinate — `ENST00000646891` is `.1` in Ensembl 103 and `.2` in Ensembl
+115 — so a consumer resolving transcript to protein to residue needs the release
+that minted it. Without it the residue number is wrong in a way that looks right.
+
+| Field | Type | Default | Example |
+|---|---|---|---|
+| `source` | `GeneModelSource` | *required* | `ensembl` |
+| `release` | `str` | *required* | `"110"`. Length ≥ 1 |
+| `assembly` | `str` | *required* | `"GRCh38"`. Length ≥ 1 |
+| `annotator` | `str` | *required* | `"pave@1.9"` — the tool that assigned the transcripts, not the caller. Length ≥ 1 |
 
 **Property:** `is_validated -> bool` — `validation_status is ValidationStatus.VALIDATED`.
 
@@ -107,6 +122,15 @@ Construct via [`project()`](#projection), not directly.
 | `vaf` | `float \| None` | `None` | `0.0 … 1.0` |
 | `tier` | `str \| None` | `None` | Caller tier, e.g. `"HOTSPOT"` |
 | `filter` | `str \| None` | `None` | VCF `FILTER`, e.g. `"PASS"` |
+| `transcript` | `str \| None` | `None` | Ensembl transcript id, e.g. `"ENST00000646891"`. Emitted **unversioned** — see `Provenance.gene_model` |
+| `consequence` | `str \| None` | `None` | Sequence Ontology term, e.g. `"missense_variant"`. Open vocabulary; annotators join co-occurring terms with `&` |
+| `hgvs_coding` | `str \| None` | `None` | HGVS `c.`, e.g. `"c.1799T>A"`. Requires `transcript` |
+| `hgvs_protein` | `str \| None` | `None` | HGVS `p.`, e.g. `"p.Val600Glu"`. Requires `transcript` |
+
+Annotation is optional on every field and frequently absent: roughly half a real
+call set is intergenic and carries no `gene`, and most annotated calls are introns
+with a `transcript` and a `c.` but no `p.`. A renderer that assumes `hgvs_protein`
+will break on the common case.
 
 ---
 
@@ -119,6 +143,7 @@ Construct via [`project()`](#projection), not directly.
 | `TmbMethod` | `genome_wide`, `panel_derived` |
 | `MsiStatus` | `MSI`, `MSS` |
 | `ValidationStatus` | `validated`, `unvalidated_resources` |
+| `GeneModelSource` | `ensembl`, `refseq` |
 | `CaveatCode` | See [Caveat codes](caveat-codes.md) |
 | `Disposition` | `MAPPED`, `TRANSFORMED`, `DROPPED` |
 
