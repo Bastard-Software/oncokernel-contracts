@@ -134,6 +134,30 @@ class _ProfileBase(BaseModel):
             )
         return self
 
+    def _all_variants(self) -> tuple[Variant, ...]:
+        """Every variant on this profile, whichever side of the boundary it is.
+
+        `germline_variants` exists only on `GenomicProfile` — the projection drops
+        it — so a rule that has to hold on both sides asks rather than assumes.
+        """
+        return (*self.somatic_variants, *getattr(self, "germline_variants", ()))
+
+    @model_validator(mode="after")
+    def _annotation_requires_its_gene_model(self) -> "_ProfileBase":
+        """A transcript id names a residue in nothing without its release.
+
+        `Variant` already refuses an HGVS string without its transcript. This is
+        that rule one level up: the transcript is itself only a coordinate against
+        the catalogue release that minted it, and PAVE emits them unversioned.
+        """
+        if any(v.transcript for v in self._all_variants()) and self.provenance.gene_model is None:
+            raise ValueError(
+                "a variant carries a transcript, so provenance.gene_model is required: "
+                "an unversioned transcript id names a residue only against the gene "
+                "model release that minted it"
+            )
+        return self
+
     @model_validator(mode="after")
     def _unvalidated_resources_must_carry_its_caveat(self) -> "_ProfileBase":
         if (

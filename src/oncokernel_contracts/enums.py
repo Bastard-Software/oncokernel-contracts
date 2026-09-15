@@ -7,6 +7,18 @@ appear in JSON Schema as string enums that a non-Python consumer can read.
 from enum import StrEnum
 
 
+class GeneModelSource(StrEnum):
+    """Which catalogue assigned a variant's transcript ids.
+
+    Ensembl and RefSeq number transcripts independently, so `ENST...` and `NM_...`
+    are not two spellings of one coordinate — a residue position resolved against
+    the wrong catalogue is wrong without looking wrong.
+    """
+
+    ENSEMBL = "ensembl"
+    REFSEQ = "refseq"
+
+
 class SampleMode(StrEnum):
     """The clinical track a profile was produced on.
 

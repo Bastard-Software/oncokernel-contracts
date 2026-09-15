@@ -46,6 +46,24 @@ Cells marked `—` permit no metrics.
 
 ---
 
+## Annotation
+
+A transcript id is a coordinate only against the release that minted it, and an
+HGVS string is a coordinate only against its transcript. Both rules exist so a
+consumer cannot resolve a residue position against the wrong reference and get a
+plausible-looking answer.
+
+| Condition | Applied to | Message contains |
+|---|---|---|
+| `hgvs_coding` or `hgvs_protein` set without `transcript` | `Variant` | `require transcript` |
+| Any variant carries a `transcript` and `provenance.gene_model` is unset | `GenomicProfile`, `PseudonymizedProfile` | `provenance.gene_model is required` |
+
+The second rule reads `somatic_variants` **and** `germline_variants`. A profile
+whose variants carry no transcript needs no `gene_model` — an unannotated run has
+none to declare and must not invent one.
+
+---
+
 ## Germline data
 
 | Condition | Result | Message contains |

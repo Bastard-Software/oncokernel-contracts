@@ -15,6 +15,50 @@
       "title": "CaveatCode",
       "type": "string"
     },
+    "GeneModel": {
+      "additionalProperties": false,
+      "description": "The catalogue release that minted a profile's transcript ids.\n\nA bare transcript id is not a coordinate. `ENST00000646891` is `.1` in\nEnsembl 103 and `.2` in Ensembl 115, and PAVE emits them unversioned, so a\nconsumer resolving transcript to protein to residue without the release\nsilently uses whichever one it happens to hold. That failure draws the wrong\nresidue and looks entirely plausible doing it.\n\n`annotator` is the tool that assigned the transcripts, not the tool that\ncalled the variants: two runs of the same caller against different PAVE\nversions can disagree about which transcript is canonical.",
+      "properties": {
+        "annotator": {
+          "description": "tool that assigned the transcripts, e.g. 'pave@1.9'",
+          "minLength": 1,
+          "title": "Annotator",
+          "type": "string"
+        },
+        "assembly": {
+          "description": "e.g. 'GRCh38'",
+          "minLength": 1,
+          "title": "Assembly",
+          "type": "string"
+        },
+        "release": {
+          "description": "catalogue release, e.g. '110'",
+          "minLength": 1,
+          "title": "Release",
+          "type": "string"
+        },
+        "source": {
+          "$ref": "#/$defs/GeneModelSource"
+        }
+      },
+      "required": [
+        "source",
+        "release",
+        "assembly",
+        "annotator"
+      ],
+      "title": "GeneModel",
+      "type": "object"
+    },
+    "GeneModelSource": {
+      "description": "Which catalogue assigned a variant's transcript ids.\n\nEnsembl and RefSeq number transcripts independently, so `ENST...` and `NM_...`\nare not two spellings of one coordinate \u2014 a residue position resolved against\nthe wrong catalogue is wrong without looking wrong.",
+      "enum": [
+        "ensembl",
+        "refseq"
+      ],
+      "title": "GeneModelSource",
+      "type": "string"
+    },
     "Limitation": {
       "additionalProperties": false,
       "properties": {
@@ -64,6 +108,17 @@
           "description": "e.g. 'sage-minimal' or 'oncoanalyser@2.3.0'",
           "title": "Engine",
           "type": "string"
+        },
+        "gene_model": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/GeneModel"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
         },
         "pipeline_git_sha": {
           "title": "Pipeline Git Sha",

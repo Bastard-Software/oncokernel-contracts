@@ -41,6 +41,25 @@ Genome-wide metrics remain permitted on a partly excluded territory. Consumers r
 
 The next consumer to appear makes this a real bump, and this entry becomes its migration note.
 
+## Unversioned — the gene model behind a transcript
+
+Additive in shape, **breaking in validation**: a profile whose variants carry a `transcript` no longer validates unless `provenance.gene_model` is set. Nothing that previously validated without annotation is affected.
+
+`schema_version` stays `1.0.0` and `__version__` stays `0.1.0`, on the same reasoning as the territory-exclusion entry above: the ingestion engine is still the only producer, and the two committed evidence profiles it has emitted are regenerable.
+
+| Added | Detail |
+|---|---|
+| `GeneModel` | `source`, `release`, `assembly`, `annotator` — the catalogue that minted the transcript ids |
+| `GeneModelSource` | `ensembl`, `refseq` |
+| `Provenance.gene_model` | Optional; required by the rule below |
+| `_annotation_requires_its_gene_model` | Any `transcript` on `somatic_variants` or `germline_variants` demands it |
+
+**Why it is worth a break.** PAVE emits transcript ids unversioned — measured at 510/510 and 660/660 across the two evidence profiles. `ENST00000646891` is `.1` in Ensembl 103 and `.2` in Ensembl 115, so a consumer mapping transcript → protein → residue without the release silently uses whichever one it holds. The output is wrong and looks plausible, which is the failure mode this library exists to prevent.
+
+**What a producer must do.** Populate `provenance.gene_model` from the release that actually ran, not from a default. The ingestion engine pins `homo_sapiens_core_110_38` in `setup.sh`; anything hard-coding a release in the consumer instead is the bug this closes.
+
+**What a consumer must do.** Nothing, unless it constructs profiles. `gene_model` is `MAPPED`, so it crosses the boundary with `provenance` and needs no projection change.
+
 ## Planned
 
 | Trigger | Change | Breaking |
